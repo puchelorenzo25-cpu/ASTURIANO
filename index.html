@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ast">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Cuélebre — Comprensión escrita</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f4ede1;
+    color: #2a1f14;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fffaf2;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(60, 35, 10, 0.18);
+    overflow: hidden;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    background: linear-gradient(135deg, #2d4a2b 0%, #5a7d3a 50%, #8b6f3a 100%);
+    color: #fdf6e3;
+    padding: 24px 36px;
+    position: relative;
+  }
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #d4a850, #c9a227, #d4a850);
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    opacity: 0.9;
+    font-style: italic;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #e6dcc5;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d4a850, #c9a227);
+    transition: width 0.4s ease;
+    width: 12.5%;
+  }
+  .slide {
+    flex: 1;
+    padding: 40px 50px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Slide 1: portada */
+  .cover {
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .cover .dragon-art {
+    font-size: 80px;
+    margin-bottom: 20px;
+    display: inline-block;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+  }
+  .cover h2 {
+    font-size: 38px;
+    color: #2d4a2b;
+    margin-bottom: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .cover .lead {
+    font-size: 17px;
+    color: #5a4632;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .cover .level-badge {
+    display: inline-block;
+    background: #d4a850;
+    color: #2a1f14;
+    padding: 8px 20px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 24px;
+    letter-spacing: 0.5px;
+  }
+  .cover .instructions {
+    margin-top: 36px;
+    padding: 20px;
+    background: #f7efdf;
+    border-left: 4px solid #5a7d3a;
+    border-radius: 6px;
+    text-align: left;
+    font-size: 15px;
+    color: #4a3520;
+  }
+  .cover .instructions strong { color: #2d4a2b; }
+
+  /* Slide del texto */
+  .text-slide h2 {
+    color: #2d4a2b;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #d4a850;
+  }
+  .text-slide p {
+    margin-bottom: 16px;
+    font-size: 16px;
+    text-align: justify;
+    color: #3a2a18;
+  }
+  .text-slide p::first-letter {
+    font-weight: 600;
+  }
+  .text-slide .source {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #8b7355;
+    font-style: italic;
+    text-align: right;
+  }
+  .text-slide .source a { color: #5a7d3a; }
+
+  /* Slides de pregunta */
+  .question-slide .q-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #5a7d3a, #2d4a2b);
+    color: #fdf6e3;
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 8px rgba(45, 74, 43, 0.3);
+  }
+  .question-slide h2 {
+    color: #2d4a2b;
+    font-size: 22px;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+  .question-slide textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 16px;
+    border: 2px solid #e6dcc5;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #2a1f14;
+    background: #fffefb;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.6;
+  }
+  .question-slide textarea:focus {
+    outline: none;
+    border-color: #5a7d3a;
+    box-shadow: 0 0 0 3px rgba(90, 125, 58, 0.15);
+  }
+  .question-slide .tip {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #8b7355;
+    font-style: italic;
+  }
+  .reread-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: #5a7d3a;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px dashed #5a7d3a;
+    cursor: pointer;
+  }
+  .reread-link:hover { color: #2d4a2b; }
+
+  /* Slide final */
+  .final-slide {
+    text-align: center;
+    padding: 50px 40px;
+  }
+  .final-slide .check {
+    font-size: 70px;
+    margin-bottom: 20px;
+  }
+  .final-slide h2 {
+    color: #2d4a2b;
+    font-size: 30px;
+    margin-bottom: 16px;
+  }
+  .final-slide p {
+    font-size: 16px;
+    color: #5a4632;
+    margin-bottom: 28px;
+  }
+  .download-btn {
+    background: linear-gradient(135deg, #5a7d3a, #2d4a2b);
+    color: #fdf6e3;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(45, 74, 43, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin: 8px;
+  }
+  .download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(45, 74, 43, 0.4);
+  }
+  .download-btn.secondary {
+    background: linear-gradient(135deg, #d4a850, #b8901f);
+  }
+
+  /* Navegación */
+  .nav {
+    padding: 20px 40px;
+    border-top: 1px solid #e6dcc5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #faf3e6;
+  }
+  .nav button {
+    background: #fffaf2;
+    color: #2d4a2b;
+    border: 2px solid #5a7d3a;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav button:hover:not(:disabled) {
+    background: #5a7d3a;
+    color: #fdf6e3;
+  }
+  .nav button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .nav button.primary {
+    background: linear-gradient(135deg, #5a7d3a, #2d4a2b);
+    color: #fdf6e3;
+    border: none;
+  }
+  .nav button.primary:hover { transform: translateY(-1px); }
+  .nav .counter {
+    font-size: 14px;
+    color: #8b7355;
+    font-weight: 600;
+  }
+
+  @media (max-width: 600px) {
+    .slide { padding: 24px; }
+    .cover h2 { font-size: 28px; }
+    .nav { padding: 16px 20px; }
+    .nav button { padding: 8px 16px; font-size: 13px; }
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; }
+    .nav, .reread-link, .header::after, .progress-bar { display: none; }
+    .slide { display: block !important; padding: 30px; page-break-after: always; }
+    textarea { border: 1px solid #999; background: white; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>El Cuélebre · Comprensión escrita</h1>
+    <div class="subtitle">Llingua asturiana · Nivel A2–B1</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- Slide 1: Portada -->
+  <div class="slide active cover" data-slide="1">
+    <div class="dragon-art">🐉</div>
+    <h2>El Cuélebre</h2>
+    <p class="lead">Una actividá de comprensión escrita sobre la mitoloxía asturiana</p>
+    <div class="level-badge">Nivel A2 – B1</div>
+    <div class="instructions">
+      <p><strong>¿Cómo facer esta actividá?</strong></p>
+      <p style="margin-top:8px;">1. Llee con atención el testu na siguiente páxina.<br>
+      2. Responde a les 6 preguntes coles tos propies pallabres.<br>
+      3. Al final, pues descargar les tos respuestes en PDF pa entregales.</p>
+    </div>
+  </div>
+
+  <!-- Slide 2: Texto -->
+  <div class="slide text-slide" data-slide="2">
+    <h2>📖 Llee atentamente</h2>
+    <p>El cuélebre, culebre o serpe son los nomes daos a una criatura llexendaria, perteneciente a les mitoloxíes cántabro y asturiano, descrita comu'n ser con forma dragón, asemeyáu a una culiebra alada.</p>
+    <p>La tradición describelu de la siguiente forma: los sos güeyos son áscuares incandescentes, tol so cuerpu ta recubiertu d'escames y del so llombu crecen unes nales d'esperteyu.</p>
+    <p>Cúntase qu'una de les sos principales funciones ye la de xixilar ayalgues. Na mitoloxía asturiana son frecuentes les referencies a estes ayalgues ocultes, que polo común consisten en pieces d'oru de gran valor. Pa la gueta de l'ayalga hai unes guíes llamaes lliendas que describen los llugares nos que se cree que s'atopen.</p>
+    <p>Dizse que'l cuélebre suel ser cafiante pa los homes que viven cerca del so escondite, que puede ser un monte, una cueva o una fonte, yá que emite xiblíos tarrecibles y tien por costume alimentase de seres humanos, tantu vivos como muertos. Pa evitar qu'esto asoceda suélse-y apurrir alimentos como boroña.</p>
+    <p>El puntu débil del cuélebre sería'l gargüelu, una y bones el restu del cuerpu taría cubiertu por unes dures escames que lo volveríen práuticamente invulnerable. Al faese vieyos, créese que se diríen al fondu del mar a curiar les sos ayalgues y folgar.</p>
+    <p class="source">Fonte: blog <em>Lliga Celta d'Asturies</em> — <a href="https://lligaceltadasturies.wordpress.com/2017/08/26/mitoloxia-dasturies-el-cuelebre/" target="_blank" rel="noopener">testu orixinal</a></p>
+  </div>
+
+  <!-- Slides de preguntas 1-6 -->
+  <div class="slide question-slide" data-slide="3">
+    <div class="q-number">1</div>
+    <h2>¿Qué ye'l cuélebre y cómo se describe el so aspeutu físicu nel testu?</h2>
+    <textarea data-question="1" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: piensa nes pallabres «criatura llexendaria», «güeyos», «escames», «nales»…</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <div class="slide question-slide" data-slide="4">
+    <div class="q-number">2</div>
+    <h2>¿Cuál ye una de les principales funciones del cuélebre según la mitoloxía asturiana? Esplícalo coles tos pallabres.</h2>
+    <textarea data-question="2" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: pista — relaciónase coles ayalgues.</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <div class="slide question-slide" data-slide="5">
+    <div class="q-number">3</div>
+    <h2>¿Qué son les lliendas que se mienten nel testu y pa qué sirven?</h2>
+    <textarea data-question="3" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: nun confundas «lliendes» con «leyendas» — equí tienen un sentíu específicu.</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <div class="slide question-slide" data-slide="6">
+    <div class="q-number">4</div>
+    <h2>¿Por qué se diz que'l cuélebre ye cafiante pa los homes que viven cerca del so escondite? ¿Qué facen pa evitar problemes con él?</h2>
+    <textarea data-question="4" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: piensa nos xiblíos y na boroña.</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <div class="slide question-slide" data-slide="7">
+    <div class="q-number">5</div>
+    <h2>¿Cuál ye'l puntu débil del cuélebre y por qué resulta práuticamente invulnerable nel restu del cuerpu?</h2>
+    <textarea data-question="5" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: ¿qué parte del cuerpu nun ta cubierta d'escames?</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <div class="slide question-slide" data-slide="8">
+    <div class="q-number">6</div>
+    <h2>¿Qué-yos asocede a los cuélebres cuando avieyen? ¿Ónde van vivir entós?</h2>
+    <textarea data-question="6" placeholder="Escribi equí la to respuesta…"></textarea>
+    <p class="tip">💡 Conseyu: la respuesta ta nel últimu párrafu.</p>
+    <a class="reread-link" onclick="goToSlide(2)">↩ Volver lleer el testu</a>
+  </div>
+
+  <!-- Slide final -->
+  <div class="slide final-slide" data-slide="9">
+    <div class="check">🎉</div>
+    <h2>¡Acabesti!</h2>
+    <p>Bon trabayu. Pues descargar les tos respuestes pa imprimir o entregar al profesor.</p>
+    <button class="download-btn" onclick="downloadAnswers()">📥 Descargar respuestes (.txt)</button>
+    <button class="download-btn secondary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  </div>
+
+  <!-- Navegación -->
+  <div class="nav">
+    <button id="prevBtn" onclick="prevSlide()" disabled>← Anterior</button>
+    <div class="counter"><span id="current">1</span> / 9</div>
+    <button id="nextBtn" class="primary" onclick="nextSlide()">Siguiente →</button>
+  </div>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 9;
+
+  function showSlide(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    const slide = document.querySelector(`.slide[data-slide="${n}"]`);
+    if (slide) slide.classList.add('active');
+    currentSlide = n;
+    document.getElementById('current').textContent = n;
+    document.getElementById('progressFill').style.width = (n / totalSlides * 100) + '%';
+    document.getElementById('prevBtn').disabled = n === 1;
+    document.getElementById('nextBtn').disabled = n === totalSlides;
+    document.getElementById('nextBtn').textContent = n === totalSlides - 1 ? 'Finalizar →' : 'Siguiente →';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+  function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+  function goToSlide(n) { showSlide(n); }
+
+  function downloadAnswers() {
+    const questions = [
+      "¿Qué ye'l cuélebre y cómo se describe el so aspeutu físicu nel testu?",
+      "¿Cuál ye una de les principales funciones del cuélebre según la mitoloxía asturiana?",
+      "¿Qué son les lliendas que se mienten nel testu y pa qué sirven?",
+      "¿Por qué se diz que'l cuélebre ye cafiante pa los homes que viven cerca del so escondite? ¿Qué facen pa evitar problemes con él?",
+      "¿Cuál ye'l puntu débil del cuélebre y por qué resulta práuticamente invulnerable nel restu del cuerpu?",
+      "¿Qué-yos asocede a los cuélebres cuando avieyen? ¿Ónde van vivir entós?"
+    ];
+    let text = "EL CUÉLEBRE — COMPRENSIÓN ESCRITA\nLlingua asturiana · Nivel A2-B1\n" + "=".repeat(50) + "\n\n";
+    for (let i = 1; i <= 6; i++) {
+      const ta = document.querySelector(`textarea[data-question="${i}"]`);
+      text += `PREGUNTA ${i}:\n${questions[i-1]}\n\nRESPUESTA:\n${ta ? ta.value : ''}\n\n` + "-".repeat(50) + "\n\n";
+    }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'respuestes_cuelebre.txt';
+    a.click();
+  }
+
+  // Teclas de navegación
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  showSlide(1);
+</script>
+</body>
+</html>
