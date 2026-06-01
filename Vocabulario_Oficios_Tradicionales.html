@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ast">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oficios Tradicionales d'Asturies — Sopa de Lletres</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f3ece0;
+    color: #2a1f10;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fffbf2;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(80, 50, 15, 0.18);
+    overflow: hidden;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    background: linear-gradient(135deg, #6b3a1a 0%, #8b5a2a 50%, #c9a227 100%);
+    color: #fbf3e0;
+    padding: 24px 36px;
+    position: relative;
+  }
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2d5a2b, #5a7d3a, #2d5a2b);
+  }
+  .header h1 { font-size: 26px; font-weight: 700; }
+  .header .subtitle { font-size: 13px; opacity: 0.92; font-style: italic; }
+  .progress-bar { height: 6px; background: #e6dcc5; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a227, #8b5a2a);
+    transition: width 0.4s ease;
+    width: 33%;
+  }
+  .slide { flex: 1; padding: 30px 40px; display: none; animation: fadeIn 0.4s ease; }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Portada */
+  .cover { text-align: center; padding: 50px 40px; }
+  .cover .icon { font-size: 75px; margin-bottom: 16px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15)); }
+  .cover h2 { font-size: 34px; color: #6b3a1a; margin-bottom: 10px; font-weight: 800; }
+  .cover .lead { font-size: 16px; color: #5a4632; margin-bottom: 8px; font-style: italic; }
+  .cover .instructions {
+    margin-top: 28px;
+    padding: 18px 22px;
+    background: #f9f1de;
+    border-left: 4px solid #c9a227;
+    border-radius: 6px;
+    text-align: left;
+    font-size: 14px;
+    color: #4a3520;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cover .instructions strong { color: #6b3a1a; }
+
+  /* Sopa */
+  .sopa-slide h2 {
+    color: #6b3a1a;
+    font-size: 22px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .sopa-slide .sub {
+    text-align: center;
+    color: #6a5a42;
+    font-size: 14px;
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+  .game-area {
+    display: grid;
+    grid-template-columns: minmax(340px, 480px) 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .game-area { grid-template-columns: 1fr; }
+  }
+  .grid-wrapper {
+    background: #f9f1de;
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 6px rgba(107, 58, 26, 0.08);
+    user-select: none;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    gap: 2px;
+    aspect-ratio: 1 / 1;
+  }
+  .cell {
+    background: #fffbf2;
+    border: 1px solid #d8c8a0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: clamp(11px, 1.8vw, 16px);
+    color: #3a2a14;
+    cursor: pointer;
+    transition: all 0.15s;
+    aspect-ratio: 1 / 1;
+  }
+  .cell:hover { background: #f3e8cc; }
+  .cell.selecting { background: #c9a227; color: #2a1f10; transform: scale(1.05); }
+  .cell.found { background: #6b3a1a; color: #fbf3e0; }
+  .cell.start-pick { background: #f2cc5a; color: #2a1f10; box-shadow: 0 0 0 2px #8b5a2a; }
+
+  .words-panel {
+    background: #f9f1de;
+    padding: 16px;
+    border-radius: 12px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .words-panel h3 {
+    color: #6b3a1a;
+    font-size: 15px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #c9a227;
+    padding-bottom: 6px;
+  }
+  .word-item {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: #fffbf2;
+    border-radius: 6px;
+    border-left: 3px solid #d8c8a0;
+    transition: all 0.2s;
+    font-size: 13px;
+  }
+  .word-item.found {
+    background: #efe0bd;
+    border-left-color: #6b3a1a;
+    opacity: 0.85;
+  }
+  .word-item.found .word { text-decoration: line-through; color: #6b3a1a; }
+  .word-item .word {
+    font-weight: 700;
+    color: #6b3a1a;
+    margin-right: 6px;
+    letter-spacing: 0.5px;
+  }
+  .word-item .def {
+    color: #5a4632;
+    font-style: italic;
+  }
+  .counter-display {
+    text-align: center;
+    margin-top: 12px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #6b3a1a;
+  }
+  .selection-info {
+    text-align: center;
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff8e1;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #5a4632;
+    min-height: 36px;
+  }
+  .clear-btn {
+    background: #c9a227;
+    color: #2a1f10;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .clear-btn:hover { background: #8b5a2a; color: #fff; }
+
+  /* Final */
+  .final-slide { text-align: center; padding: 50px 40px; }
+  .final-slide .check { font-size: 70px; margin-bottom: 18px; }
+  .final-slide h2 { color: #6b3a1a; font-size: 30px; margin-bottom: 14px; }
+  .final-slide p { font-size: 16px; color: #5a4632; margin-bottom: 24px; }
+  .download-btn {
+    background: linear-gradient(135deg, #8b5a2a, #6b3a1a);
+    color: #fbf3e0;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(107, 58, 26, 0.3);
+    transition: transform 0.2s;
+    margin: 8px;
+  }
+  .download-btn:hover { transform: translateY(-2px); }
+  .download-btn.secondary { background: linear-gradient(135deg, #c9a227, #8b5a2a); }
+
+  /* Nav */
+  .nav {
+    padding: 18px 40px;
+    border-top: 1px solid #e6dcc5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f1de;
+  }
+  .nav button {
+    background: #fffbf2;
+    color: #6b3a1a;
+    border: 2px solid #8b5a2a;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav button:hover:not(:disabled) { background: #8b5a2a; color: #fbf3e0; }
+  .nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav button.primary {
+    background: linear-gradient(135deg, #8b5a2a, #6b3a1a);
+    color: #fbf3e0;
+    border: none;
+  }
+  .nav .counter { font-size: 14px; color: #6a5a42; font-weight: 600; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; }
+    .nav, .clear-btn, .header::after, .progress-bar { display: none; }
+    .slide { display: block !important; padding: 30px; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Oficios Tradicionales d'Asturies · Sopa de Lletres</h1>
+    <div class="subtitle">Llingua asturiana · Vocabulariu</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- Portada -->
+  <div class="slide active cover" data-slide="1">
+    <div class="icon">⚒️🎶🌾</div>
+    <h2>Oficios Tradicionales</h2>
+    <p class="lead">Sopa de lletres con 12 profesiones del aldea y la villa asturianes</p>
+    <div class="instructions">
+      <p><strong>¿Cómo se xuega?</strong></p>
+      <p style="margin-top:6px;">1. Llee la definición de cada oficiu na llista de la derecha.<br>
+      2. Atopa la pallabra na sopa de lletres.<br>
+      3. Calca primeru na primer lletra y darréu na última. La pallabra ha de tar n'horizontal, vertical o diagonal.<br>
+      4. Si aciertes, la pallabra va marcase. Si yerres, intentalu otra vegada.<br>
+      5. ¡Atopa los 12 oficios pa rematar!</p>
+    </div>
+  </div>
+
+  <!-- Sopa -->
+  <div class="slide sopa-slide" data-slide="2">
+    <h2>🔍 Atopa los 12 oficios</h2>
+    <p class="sub">Calca primer y última lletra de cada pallabra · Horizontales, verticales o diagonales</p>
+    <div class="game-area">
+      <div>
+        <div class="grid-wrapper">
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="selection-info" id="selectionInfo">Calca na primer lletra d'una pallabra…</div>
+        <div style="text-align:center;">
+          <button class="clear-btn" onclick="clearSelection()">Llimpiar seleición</button>
+        </div>
+      </div>
+      <div>
+        <div class="words-panel">
+          <h3>Oficios pa atopar (<span id="foundCount">0</span>/12)</h3>
+          <div id="wordList"></div>
+        </div>
+        <div class="counter-display" id="counterDisplay">¡Suerte!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final -->
+  <div class="slide final-slide" data-slide="3">
+    <div class="check">🎉</div>
+    <h2>¡Bon trabayu!</h2>
+    <p id="finalMessage">Acabesti l'actividá de vocabulariu. Pues descargar el resultáu pa entregalu.</p>
+    <button class="download-btn" onclick="downloadResults()">📥 Descargar resultáu</button>
+    <button class="download-btn secondary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="nav">
+    <button id="prevBtn" onclick="prevSlide()" disabled>← Anterior</button>
+    <div class="counter"><span id="current">1</span> / 3</div>
+    <button id="nextBtn" class="primary" onclick="nextSlide()">Siguiente →</button>
+  </div>
+</div>
+
+<script>
+  // ===== DATOS =====
+  const ROWS = 13, COLS = 13;
+  const words = [
+    { word: "LLABRADOR",   def: "Persona que trabaya la tierra y cultiva los campos.",                                          start: [1,1],  end: [1,9] },
+    { word: "PANADERU",    def: "Persona que fai'l pan nun fornu.",                                                              start: [2,1],  end: [2,8] },
+    { word: "FERREIRU",    def: "Persona que trabaya'l fierro nuna ferrería, faciendo ferramientes y ferraúres.",                start: [3,3],  end: [3,10] },
+    { word: "GAITERU",     def: "Músicu que toca la gaita asturiana, frecuentemente acompañáu d'un tamboriteru.",                start: [5,4],  end: [5,10] },
+    { word: "VAQUEIRU",    def: "Persona que cuida les vaques; n'Asturies, miembru de la comunidá d'alzada del occidente.",      start: [11,2], end: [11,9] },
+    { word: "ESCANCIADOR", def: "Persona qu'echa la sidra dende altu nel vasu pa que coxa aire.",                                start: [12,1], end: [12,11] },
+    { word: "MOLINEIRU",   def: "Persona que trabaya nun molín moliendo'l granu pa facer farina.",                               start: [1,0],  end: [9,0] },
+    { word: "PESCADOR",    def: "Persona qu'apañe pexes nel mar o nos ríos pa vivir.",                                           start: [3,1],  end: [10,1] },
+    { word: "PASTOR",      def: "Persona que cuida del rebañu d'oveyes o cabres pelos pastiales.",                               start: [5,2],  end: [10,2] },
+    { word: "SEGADOR",     def: "Persona que corta la herba o'l trigu, tradicionalmente cola fouz o la guadaña.",                start: [4,3],  end: [10,3] },
+    { word: "MINEIRU",     def: "Persona que trabaya na mina sacando carbón, mui típicu de les cuenques asturianes.",            start: [4,6],  end: [10,6] },
+    { word: "CARPINTERU",  def: "Persona que trabaya la madera faciendo muebles, ferramientes y otros oxetos.",                  start: [1,11], end: [10,11] }
+  ];
+
+  // ===== GENERAR REXÁU =====
+  const grid = [];
+  for (let r = 0; r < ROWS; r++) {
+    grid[r] = [];
+    for (let c = 0; c < COLS; c++) grid[r][c] = '';
+  }
+  function placeWord(w) {
+    const [sr, sc] = w.start, [er, ec] = w.end;
+    const dr = Math.sign(er - sr), dc = Math.sign(ec - sc);
+    const len = Math.max(Math.abs(er - sr), Math.abs(ec - sc)) + 1;
+    for (let i = 0; i < len; i++) {
+      grid[sr + dr*i][sc + dc*i] = w.word[i];
+    }
+  }
+  words.forEach(placeWord);
+  // Rellenar güecos
+  const ALPHABET = 'AABCDEEFGHIIJKLLLMNOOPQRSSTUUVXYZ';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (!grid[r][c]) grid[r][c] = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+    }
+  }
+
+  // ===== RENDER =====
+  const gridEl = document.getElementById('grid');
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = grid[r][c];
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.addEventListener('click', () => onCellClick(r, c));
+      gridEl.appendChild(cell);
+    }
+  }
+  const wordListEl = document.getElementById('wordList');
+  words.forEach((w, i) => {
+    const item = document.createElement('div');
+    item.className = 'word-item';
+    item.id = `word-${i}`;
+    item.innerHTML = `<span class="word">${w.word}</span> <span class="def">${w.def}</span>`;
+    wordListEl.appendChild(item);
+  });
+
+  // ===== LÓGICA =====
+  let firstPick = null;
+  const found = new Set();
+
+  function getCell(r, c) {
+    return gridEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  }
+  function clearSelection() {
+    if (firstPick) {
+      getCell(firstPick[0], firstPick[1]).classList.remove('start-pick');
+      firstPick = null;
+    }
+    document.querySelectorAll('.cell.selecting').forEach(c => c.classList.remove('selecting'));
+    setInfo("Calca na primer lletra d'una pallabra…");
+  }
+  function setInfo(msg, color) {
+    const el = document.getElementById('selectionInfo');
+    el.textContent = msg;
+    el.style.background = color || '#fff8e1';
+  }
+
+  function onCellClick(r, c) {
+    if (!firstPick) {
+      firstPick = [r, c];
+      getCell(r, c).classList.add('start-pick');
+      setInfo(`Primera lletra: ${grid[r][c]}. Agora calca na última.`);
+      return;
+    }
+    const [sr, sc] = firstPick;
+    const dr = r - sr, dc = c - sc;
+    const adr = Math.abs(dr), adc = Math.abs(dc);
+    if (adr !== 0 && adc !== 0 && adr !== adc) {
+      setInfo("La pallabra ha de ser recta (horizontal, vertical o diagonal).", '#fde0e0');
+      clearSelection();
+      return;
+    }
+    const stepR = adr === 0 ? 0 : dr / adr;
+    const stepC = adc === 0 ? 0 : dc / adc;
+    const len = Math.max(adr, adc) + 1;
+    let str = '';
+    const cells = [];
+    for (let i = 0; i < len; i++) {
+      const rr = sr + stepR * i, cc = sc + stepC * i;
+      str += grid[rr][cc];
+      cells.push([rr, cc]);
+    }
+    const matchIdx = words.findIndex((w, idx) => !found.has(idx) && (w.word === str || w.word === str.split('').reverse().join('')));
+    if (matchIdx >= 0) {
+      cells.forEach(([rr, cc]) => {
+        const cell = getCell(rr, cc);
+        cell.classList.remove('start-pick', 'selecting');
+        cell.classList.add('found');
+      });
+      found.add(matchIdx);
+      document.getElementById(`word-${matchIdx}`).classList.add('found');
+      document.getElementById('foundCount').textContent = found.size;
+      setInfo(`¡Atopesti "${words[matchIdx].word}"! ✓`, '#efe0bd');
+      firstPick = null;
+      checkComplete();
+    } else {
+      setInfo(`"${str}" nun ye una pallabra correuta. Intenta otra vegada.`, '#fde0e0');
+      clearSelection();
+    }
+  }
+
+  function checkComplete() {
+    if (found.size === words.length) {
+      document.getElementById('counterDisplay').innerHTML = '🎉 ¡Atopesti tolos oficios!';
+      document.getElementById('counterDisplay').style.background = '#efe0bd';
+    } else {
+      document.getElementById('counterDisplay').textContent = `${found.size} / ${words.length} oficios atopaos`;
+    }
+  }
+
+  function downloadResults() {
+    let text = "OFICIOS TRADICIONALES D'ASTURIES — VOCABULARIU\nSopa de Lletres · Llingua asturiana\n";
+    text += "=".repeat(55) + "\n\n";
+    text += `Resultáu: ${found.size} / ${words.length} oficios atopaos\n\n`;
+    text += "PALLABRES:\n" + "-".repeat(55) + "\n";
+    words.forEach((w, i) => {
+      text += `${found.has(i) ? '✓' : '✗'} ${w.word.padEnd(12)} — ${w.def}\n`;
+    });
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'vocabulariu_oficios.txt';
+    a.click();
+  }
+
+  // ===== NAVEGACIÓN =====
+  let currentSlide = 1;
+  const totalSlides = 3;
+  function showSlide(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.slide[data-slide="${n}"]`).classList.add('active');
+    currentSlide = n;
+    document.getElementById('current').textContent = n;
+    document.getElementById('progressFill').style.width = (n / totalSlides * 100) + '%';
+    document.getElementById('prevBtn').disabled = n === 1;
+    document.getElementById('nextBtn').disabled = n === totalSlides;
+    document.getElementById('nextBtn').textContent = n === totalSlides - 1 ? 'Finalizar →' : 'Siguiente →';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+  function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+
+  showSlide(1);
+</script>
+</body>
+</html>
